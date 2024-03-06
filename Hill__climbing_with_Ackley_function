@@ -1,0 +1,62 @@
+using System;
+
+class Program
+{
+    static double AckleyFunction(double[] x)
+    {
+        double sum1 = 0;
+        double sum2 = 0;
+        int n = x.Length;
+
+        foreach (double xi in x)
+        {
+            sum1 += xi * xi;
+            sum2 += Math.Cos(2 * Math.PI * xi);
+        }
+
+        return -20 * Math.Exp(-0.2 * Math.Sqrt(sum1 / n)) - Math.Exp(sum2 / n) + 20 + Math.Exp(1);
+    }
+
+    static double[] HillClimbingAckley(int dimensions, double stepSize, int maxIterations)
+    {
+        Random rand = new Random();
+        double[] currentSolution = new double[dimensions];
+
+        for (int i = 0; i < dimensions; i++)
+        {
+            currentSolution[i] = rand.NextDouble() * 10 - 5; // تولید نقاط تصادفی بین -5 و 5
+        }
+
+        for (int iter = 0; iter < maxIterations; iter++)
+        {
+            double currentFitness = AckleyFunction(currentSolution);
+            double[] nextSolution = new double[dimensions];
+            Array.Copy(currentSolution, nextSolution, dimensions);
+
+            int index = rand.Next(dimensions);
+            nextSolution[index] += (rand.NextDouble() * 2 - 1) * stepSize; // تولید حرکت تصادفی
+
+            double newFitness = AckleyFunction(nextSolution);
+
+            if (newFitness < currentFitness)
+            {
+                Array.Copy(nextSolution, currentSolution, dimensions);
+            }
+        }
+
+        return currentSolution;
+    }
+
+    static void Main()
+    {
+        int dimensions = 2;
+        double stepSize = 0.1;
+        int maxIterations = 1000;
+
+        double[] result = HillClimbingAckley(dimensions, stepSize, maxIterations);
+        double optimalValue = AckleyFunction(result);
+
+        Console.WriteLine("Optimal Solution: " + string.Join(", ", result));
+        Console.WriteLine("Optimal Value: " + optimalValue);
+    }
+}
